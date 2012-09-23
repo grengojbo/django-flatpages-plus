@@ -33,10 +33,10 @@ class FlatPageAdmin(admin.ModelAdmin):
     list_display = ('url', 'title', 'name', 'status', 'owner', 'views', 'modified', 'created')
     list_filter = ('status', 'sites', 'enable_comments', 'registration_required',)
     search_fields = ('url', 'title', 'name', 'owner',)
-    class Media:
-        js = [
-            "{0}/grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js".format(settings.STATIC_ROOT),
-            "{0}/grappelli/tinymce_setup/tinymce_setup.js".format(settings.STATIC_ROOT),
-        ]
+#    class Media:
+#        js = [
+#            "{0}/grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js".format(settings.STATIC_ROOT),
+#            "{0}/grappelli/tinymce_setup/tinymce_setup.js".format(settings.STATIC_ROOT),
+#        ]
 
 admin.site.register(FlatPage, FlatPageAdmin)

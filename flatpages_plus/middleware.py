@@ -1,8 +1,6 @@
-from django.conf import settings
-from django.http import Http404
-
 from flatpages_plus.views import flatpage
-
+from django.http import Http404
+from django.conf import settings
 
 class FlatpageFallbackMiddleware(object):
     def process_response(self, request, response):
