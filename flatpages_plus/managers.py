@@ -1,3 +1,4 @@
+# -*- mode: python; coding: utf-8; -*-
 import datetime
 
 from django.conf import settings
@@ -17,11 +18,15 @@ class FlatpagesManager(models.Manager):
                     owners=None, limit=None, remove=None):
         """
         The main function to return flatpages based on various criteria.
-        
+        Основная функция возвращает flatpages на основе различных критериев.
+
         This function is used by all the functions below it.
-        
+        Эта функция используется всеми функциями ниже.
+
         All fields are optional. If nothing is passed to this manager, it will 
         return all flatpages, sorted by most recent.
+        Все поля являются обязательными. Если ничего не будет передано этому менеджеру, он
+        вернет все страницы, отсортированные по самой последней записи.
         
         sort=                       What to sort the flatpages by. Optional. Default is by url.
             'created'               Returns least recently created flatpages first.
@@ -88,7 +93,7 @@ class FlatpagesManager(models.Manager):
         
         if owners:
             owners_list = str(owners).split(',')
-            query_set = query_set.filter(owner__pk__in=owner_list)
+            query_set = query_set.filter(owner__pk__in=owners_list)
             
         if remove:
             remove_list = str(remove).split(',')
