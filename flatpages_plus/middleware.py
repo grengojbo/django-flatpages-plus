@@ -1,3 +1,4 @@
+# -*- mode: python; coding: utf-8; -*-
 from flatpages_plus.views import flatpage
 from django.http import Http404
 from django.conf import settings

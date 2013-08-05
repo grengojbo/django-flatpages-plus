@@ -1,3 +1,5 @@
+# -*- mode: python; coding: utf-8; -*-
+
 # from django import template
 # from django.conf import settings
 # from django.contrib.flatpages.models import FlatPage
@@ -100,7 +102,7 @@
 
 
 # TODO: Add starts_with so we can list pages under a section (see above).
-
+from imagestore.models import Image
 from django import template
 from django.template.base import TemplateSyntaxError
 from django.template.defaulttags import token_kwargs
@@ -128,6 +130,7 @@ class FlatpagesNode(template.Node):
         owners = values.get('owners', None)
         limit = values.get('limit', None)
         remove = values.get('remove', None)
+        category = values.get('category', None)
         
         context[self.var_name] = FlatPage.objects.get_flatpages(sort=sort, 
                                             tags=tags, 
@@ -135,8 +138,31 @@ class FlatpagesNode(template.Node):
                                             starts_with=starts_with,
                                             owners=owners, 
                                             limit=limit, 
-                                            remove=remove)
+                                            remove=remove,
+                                            category=category)
         return ''
+
+# class SliderNode(template.Node):
+#     def __init__(self, template_name, limit):
+#         self.template_name = template_name
+#         self.limit = int(limit)
+#
+# def render(self, context):
+#         return ''
+
+@register.assignment_tag()
+def get_slider(album=1, limits=25, sort='asc'):
+    """
+    {% get_slider album=1 limits=3  as sliders %}
+    {% for image in sliders %}
+        в 12:<sup><small>{{ image.id }}</small></sup>, <a href="/news/">22.03.12 →</a>
+    {% endfor %}
+    :param album: ID Album
+    :param limits: 25
+    :return: Images object
+    """
+    sliders = Image.objects.filter(album__id=album).order_by('order').order_by('updated')[:int(limits)]
+    return sliders
 
 @register.tag
 def get_flatpages(parser, token):
@@ -172,6 +198,8 @@ def get_flatpages(parser, token):
             'views'                 Returns the most viewed flatpages first.
             '-views'                Returns the least viewed flatpages first.
             'random'                Returns random flatpages.
+            'order'                 Returns least ordering flatpages.
+            '-order'                Returns most ordering flatpages.
         
         tags='foo,bar,baz'          Returns all flatpages tagged with _either_      
                                     'foo', 'bar', or 'baz'. Optional.
@@ -190,9 +218,12 @@ def get_flatpages(parser, token):
         limit=10                    Limits the number of flatpages that are 
                                     returned to 10 results. Optional.
                                 
-        remove=1                    Removes a given flatpage ID or list of IDs from
+        remove=1                    Removes a given flatpage Category ID or list of IDs from
                                     the results list. Can be a string of IDs 
                                     (e.g. '1,5,6,8,234') or an integer 
+                                    (e.g. 1). Optional.
+        category=1                  Display only Category ID. Can be a string of IDs
+                                    (e.g. '1,5,6,8,234') or an integer
                                     (e.g. 1). Optional.
     
     """

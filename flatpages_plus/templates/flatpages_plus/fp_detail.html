@@ -1,0 +1,136 @@
+{% extends "layout_2_col_9x3.html" %}
+{% load i18n static fiber_tags flatpages_plus_tags thumbnail cache compress admin_urls guardian_tags %}{% load url from future %}
+{% block title %}{{ fiber_page.title }} : {{ object.title }}{% endblock title %}
+{% get_current_language as lang %}
+{% block content_title %}
+    <div class="span12 awpagetitle">
+        <h1>{{ object.title }}</h1>
+    </div>{% endblock content_title %}
+{% block content %}
+    <div class="media" data-news-detail='{{ object.pk }}'>
+        {% if object.photo2 %}
+            <a class="pull-left" href="#">
+                {% thumbnail object.photo2 "220" as im %}
+                    <img class="media-object" alt="{{ object.title }}" width="{{ im.width }}" height="{{ im.height }}"
+                         src="{{ im.url }}">{% endthumbnail %}
+            </a>
+        {% elif object.photo %}
+            {% if object.category == 2 %}
+                <a class="pull-left" href="#">
+                    {% thumbnail object.photo "670" as im %}
+                        <img class="media-object" alt="{{ object.title }}" width="{{ im.width }}"
+                             height="{{ im.height }}" src="{{ im.url }}">{% endthumbnail %}
+                </a>
+            {% else %}
+                <a class="pull-left" href="#">
+                    {% thumbnail object.photo "220" as im %}
+                        <img class="media-object" alt="{{ object.title }}" width="{{ im.width }}"
+                             height="{{ im.height }}" src="{{ im.url }}">{% endthumbnail %}
+                </a>
+            {% endif %}
+        {% endif %}
+        <div class="media-body">
+            {{ object.content|safe }}
+        </div>
+        <div class="clearfix"></div>
+    </div>
+{% endblock content %}
+{% block content-related %}
+    <div class="row">
+        <div class="span9" data-news-id='{{ object.id }}'>
+            <p></p>
+
+            <div class="pull-left awtuul">
+                <span>
+                   <span rel="tooltip" data-original-title="{% trans 'Дата публикации' %}"><i class="icon-calendar"></i> {{ object.date_publish|date:"d M Y" }}</span>
+                    {% get_obj_perms request.user for object as "flatpage_perms" %}
+                    {% if "change_flatpage" in flatpage_perms %}
+                        | <a href='{% url 'admin:flatpages_plus_flatpage_change' object.id %}' rel="tooltip" data-original-title="{% trans 'Edit' %}"><i class="icon-edit"></i> {% trans 'Edit' %}</a>
+                    {% endif %}
+                   | <span rel="tooltip" data-original-title="{% trans 'Просмотров' %}"><i class="icon-eye-open"></i> <span id='num-view-{{ object.id }}'></span></span>
+                    &nbsp;|&nbsp;<a href='#' class='itemVoite' data-id='{{ object.id }}' id='vote-{{ object.id }}' data-voite='flatpages_plus.FlatPage' rel="tooltip" data-original-title="{% trans 'Голосовать' %}"><i class="icon-thumbs-up"></i></a> <span data-voite-result='{{ object.id }}' id='num_votes{{ object.id }}'></span>
+                </span>
+            </div>
+            <div class="pull-left awsoc">
+                <script type="text/javascript" src="//yandex.st/share/share.js" charset="utf-8"></script>
+                <div class="yashare-auto-init" data-yashareL10n="uk" data-yashareType="link"
+                     data-yashareQuickServices="yaru,vkontakte,twitter,odnoklassniki">
+
+                </div>
+            </div>
+            <div class="pull-left awsoc awsocpdg">
+                <div class="fb-like" data-send="false" data-layout="button_count" data-width="250"
+                     data-show-faces="true"></div>
+            </div>
+            <div class="pull-left awsoc awsocpdg">
+                <div class="g-plusone" data-size="medium"></div>
+            </div>
+
+        </div>
+    </div>
+    <script type="text/javascript" charset="utf-8">
+        $(function () {
+            var modelVote = 'flatpages_plus.FlatPage';
+            var newsItems = $('div').map(function () {
+                return $(this).data('news-id');
+            }).get();
+            var voiteItems = $('.itemVoite').map(function () {
+                return $(this).data('id');
+            }).get();
+            console.log(newsItems);
+            console.log(voiteItems);
+            Dajaxice.jboviews(Dajax.process, {'items':newsItems, 'model':modelVote});
+            Dajaxice.jboVote(Dajax.process, {'items':voiteItems, 'model':modelVote});
+
+            $('.itemVoite').click(function () {
+                if ($(this).hasClass('disabled')) {
+                    return false;
+                } else {
+                    //var voiteId = $(this).data('id');
+                    //console.debug('текст внутри элемента ".itemVoite" id= %s', voiteId);
+                    Dajaxice.voites(Dajax.process, {'object_id':$(this).data('id'), 'model':$(this).data('voite')});
+                    $(this).addClass('disabled');
+                    return false;
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        window.___gcfg = {lang:'uk'};
+
+        (function () {
+            var po = document.createElement('script');
+            po.type = 'text/javascript';
+            po.async = true;
+            po.src = 'https://apis.google.com/js/plusone.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(po, s);
+        })();
+    </script>
+    <script>(function (d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "//connect.facebook.net/uk_UA/all.js#xfbml=1";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+{% endblock content-related %}
+{% block sidebar %}
+    {% include 'flatpages_plus/fp_sidebar.html' %}
+    {#            <li class="nav-header"><span>{% trans "Archives" %}</span></li>#}
+    {#            {% for news in date_list %}#}
+    {#                {% ifchanged news.date_publish.month %}#}
+    {#                    <li>#}
+    {#                        {% ifchanged news.date_publish|date:"Y" %}#}
+    {#                            <strong>{{ news.date_publish.year }}</strong></li>#}
+    {#                        {% endifchanged %}#}
+    {#                        {% if request.GET.y == news.date_publish.year|slugify and request.GET.m == news.date_publish.month|slugify %}#}
+    {#                            <span>{{ news.date_publish|date:"F" }}</span>#}
+    {#                        {% else %}#}
+    {#                            <a href="{% url 'flatpage_item_list' %}?y={{ news.date_publish.year }}&m={{ news.date_publish.month }}">{{ news.date_publish|date:"F" }}</a>#}
+    {#                        {% endif %}#}
+    {#                    </li>#}
+    {#                {% endifchanged %}#}
+    {#            {% endfor %}#}
+{% endblock sidebar %}

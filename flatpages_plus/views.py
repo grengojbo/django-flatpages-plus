@@ -1,3 +1,4 @@
+# -*- mode: python; coding: utf-8; -*-
 import re
 
 from django.conf import settings
@@ -8,6 +9,9 @@ from django.shortcuts import get_object_or_404
 from django.template import loader, RequestContext
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_protect
+from django.views.generic import ListView, DetailView
+from fiber.views import FiberPageMixin
+from .mixins import FlatPageMixin
 
 from flatpages_plus.models import FlatPage
 
@@ -32,12 +36,11 @@ def flatpage(request, url, **kwargs):
         flatpage
             `flatpages.flatpages` object
     """
-    if not url.endswith('/') and settings.APPEND_SLASH:
-        return HttpResponseRedirect("%s/" % request.path)
-    if not url.startswith('/'):
-        url = "/" + url
-    f = get_object_or_404(FlatPage, url__exact=url, #status='p',
-        sites__id__exact=settings.SITE_ID)
+    # if not url.endswith('/') and settings.APPEND_SLASH:
+    #     return HttpResponseRedirect("%s/" % request.path)
+    # if not url.startswith('/'):
+    #     url = "/" + url
+    f = get_object_or_404(FlatPage, url__exact=url, status='p',  sites__id__exact=settings.SITE_ID)
     return render_flatpage(request, f)
 
 @csrf_protect
@@ -59,10 +62,10 @@ def render_flatpage(request, f):
         t = loader.get_template(DEFAULT_TEMPLATE)
     
     # Track pageviews (but not of owner).
-    if request.user != f.owner:
-        f.views += 1
-        f.save()
-    
+    # if request.user != f.owner:
+    #     f.views += 1
+    #     f.save()
+    #
     # To avoid having to always use the "|safe" filter in flatpage templates,
     # mark the title and content as already safe (since they are raw HTML
     # content in the first place).
@@ -157,3 +160,86 @@ def render_flatpage(request, f):
     populate_xheaders(request, response, FlatPage, f.id)
     return response
     # TODO: Use render_to_response here...
+
+class FlatPagePlusList(FiberPageMixin, FlatPageMixin, ListView):
+    template_name = "tpl-news.html"
+    paginate_by = 20
+    # from django.core import urlresolvers
+    # c = Choice.objects.get(...)
+    # change_url = urlresolvers.reverse('admin:polls_choice_change', args=(c.id,))
+
+    def get_queryset(self):
+        self.e_context = dict()
+        cat = None
+        qs = FlatPage.objects.filter(status='p').order_by("-date_publish")
+        a = self.request.GET.get('a', None)
+        c = self.request.GET.get('c', None)
+        y = self.request.GET.get('y', None)
+        m = self.request.GET.get('m', None)
+
+        if c is not None:
+            qs = qs.filter(category=c)
+        elif 'cat' in self.kwargs:
+            cat = self.kwargs['cat']
+            qs = qs.filter(category__slug=cat)
+        else:
+            qs = qs.filter(category__status='p')
+            qs = qs.exclude(category__in=[2])
+        if a is not None:
+            qs = qs.filter(owner=a)
+        elif y is not None and m is not None:
+            qs = qs.filter(date_publish__year=y, date_publish__month=m)
+        #else:
+        #    qs = qs.filter(category__status='p')
+        self.e_context['curent_cat'] = cat
+
+        return qs.cache()
+
+    # def get_context_data(self, **kwargs):
+    #     context = super(FlatPagePlusList, self).get_context_data(**kwargs)
+    #     context['category_list'] = FlatPage.objects.values('category', 'category__title', 'category__title_en',
+    #                                                    'category__title_fr', ).order_by('category__title').distinct()
+    #     return context
+
+    def get_fiber_page_url(self):
+        return reverse('flatpage_item_list')
+
+class AquariumList(FiberPageMixin, FlatPageMixin, ListView):
+    template_name = "tpl-aquarium.html"
+    paginate_by = 20
+
+    def get_queryset(self):
+        qs = FlatPage.objects.filter(status='p', category=5).order_by("title").cache()
+        return qs
+
+    def get_fiber_page_url(self):
+        return reverse('aquarium_item_list')
+
+class FlatPagePlusDetail(FiberPageMixin, FlatPageMixin, DetailView):
+    model = FlatPage
+    template_name = "flatpages_plus/fp_detail.html"
+    slug_field = 'url'
+
+    # from django.core import urlresolvers
+    # c = Choice.objects.get(...)
+    # change_url = urlresolvers.reverse('admin:polls_choice_change', args=(c.id,))
+    # @method_decorator(permission_required_or_403('blog.delete_blog', (Blog, 'slug', 'slug')))
+    # def dispatch(self, *args, **kwargs):
+    #     return super(BlogDeleteView, self).dispatch(*args, **kwargs)
+    #
+
+
+    def get_context_data(self, **kwargs):
+        context = super(FlatPagePlusDetail, self).get_context_data(**kwargs)
+        fp = context['object']
+        # if self.request.user != fp.owner:
+        #     fp.views += 1
+        #     fp.save()
+        # # context['video_size'] = newsly_settings.VIDEOS_SIZE
+        # context['first_thumbnail_size'] = newsly_settings.FIRST_THUMBNAIL_SIZE
+        # context['thumbnail_size'] = newsly_settings.THUMBNAIL_SIZE
+        return context
+
+    def get_fiber_page_url(self):
+        return reverse('flatpage_item_list')
+

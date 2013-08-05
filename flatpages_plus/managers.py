@@ -15,18 +15,14 @@ class FlatpagesManager(models.Manager):
     #     pass
     
     def get_flatpages(self, sort='modified', tags=None, not_tags=None, starts_with=None, 
-                    owners=None, limit=None, remove=None):
+                    owners=None, limit=None, remove=None, category=None):
         """
         The main function to return flatpages based on various criteria.
-        Основная функция возвращает flatpages на основе различных критериев.
-
+        
         This function is used by all the functions below it.
-        Эта функция используется всеми функциями ниже.
-
+        
         All fields are optional. If nothing is passed to this manager, it will 
         return all flatpages, sorted by most recent.
-        Все поля являются обязательными. Если ничего не будет передано этому менеджеру, он
-        вернет все страницы, отсортированные по самой последней записи.
         
         sort=                       What to sort the flatpages by. Optional. Default is by url.
             'created'               Returns least recently created flatpages first.
@@ -58,13 +54,16 @@ class FlatpagesManager(models.Manager):
                                     the results list. Can be a string of IDs 
                                     (e.g. '1,5,6,8,234') or an integer 
                                     (e.g. 1). Optional.
+        category=1                  Display only Category ID. Can be a string of IDs
+                                    (e.g. '1,5,6,8,234') or an integer
+                                    (e.g. 1). Optional.
         
         """
         # Get the initial queryset
         query_set = self.get_query_set()
         
         # Filter by the current site.
-        query_set = query_set.filter(sites__id=settings.SITE_ID)
+        query_set = query_set.filter(sites__id=settings.SITE_ID, status='p')
         
         # Get all the filtering sort types.
         sort_types = {
@@ -74,36 +73,45 @@ class FlatpagesManager(models.Manager):
             '-created': query_set.order_by('-created'),
             'views': query_set.order_by('-views'),
             '-views': query_set.order_by('views'),
-            'random': query_set.order_by('?')
+            'random': query_set.order_by('?'),
+            'date_publish': query_set.order_by('date_publish'),
+            '-date_publish': query_set.order_by('-date_publish'),
+            'order': query_set.order_by('order'),
+            '-order': query_set.order_by('-order')
         }
         
         query_set = sort_types.get(sort, query_set)
             
-        if tags:
+        if tags is not None:
             tag_list = str(tags).split(',')
             query_set = query_set.filter(tags__name__in=tag_list).distinct()
         
-        if not_tags:
+        if not_tags is not None:
             not_tags_list = str(not_tags).split(',')
             query_set = query_set.exclude(tags__name__in=not_tags_list)
         
-        if starts_with:
+        if starts_with is not None:
             starts_with = str(starts_with)
             query_set = query_set.filter(url__startswith=starts_with)
         
-        if owners:
+        if owners is not None:
             owners_list = str(owners).split(',')
             query_set = query_set.filter(owner__pk__in=owners_list)
             
-        if remove:
+        if remove is not None:
             remove_list = str(remove).split(',')
-            query_set = query_set.exclude(pk__in=remove_list)
-            
+            #query_set = query_set.exclude(pk__in=remove_list)
+            query_set = query_set.exclude(category__in=remove_list)
+
+        if category is not None:
+            category_list = str(category).split(',')
+            query_set = query_set.filter(category__in=category_list)
+
         # Limit the length of the result.
-        if limit:
+        if limit is not None:
             query_set = query_set[:int(limit)]
             
-        return query_set
+        return query_set.cache()
         
         
         
