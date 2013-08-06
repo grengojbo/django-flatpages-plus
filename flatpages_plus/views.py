@@ -161,8 +161,9 @@ def render_flatpage(request, f):
     return response
     # TODO: Use render_to_response here...
 
+
 class FlatPagePlusList(FiberPageMixin, FlatPageMixin, ListView):
-    template_name = "tpl-news.html"
+    # template_name = "tpl-news.html"
     paginate_by = 20
     # from django.core import urlresolvers
     # c = Choice.objects.get(...)

@@ -1,0 +1,31 @@
+{% extends "tpl-page-sidebar.html" %}
+{% load i18n static thumbnail fiber_tags flatpages_plus_tags %}{% load url from future %}
+{% block title %}{{ flatpage.title }}{% endblock %}
+{% block content %}
+    <article class="span9">
+        {% for post in object_list %}
+            <div class="awblg">
+                <div class="row">
+                    <div class="span3"><a><span class="awviev">2650</span></a><span class="awpal">|</span><a><span
+                            class="awlike">+240</span></a></div>
+                    <div class="span9 zag">
+                        <h1>{{ post.title }}</h1>
+                    </div>
+                    <div class="data awgudat">{{ post.date_publish|date:"d.m.y" }}</div>
+                </div>
+                <div class="row awhide">
+
+                    <div class="span9">
+                        {% thumbnail post.photo "98" as im %}
+                            <img src="{{ im.url }}">
+                        {% endthumbnail %}
+                        <p>{{ post.content|striptags|truncatechars:300 }}</p>
+                    </div>
+                </div>
+                <div class="row awhide">
+                    <div class="awgudet"><a href="{{ post.url }}">Детальніше →</a></div>
+                </div>
+            </div>
+        {% endfor %}
+    </article>
+{% endblock content %}
