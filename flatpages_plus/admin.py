@@ -42,7 +42,10 @@ class FlatPageAdmin(TranslationAdmin):
     #form = FlatpageForm
     fieldsets = (
         (_('Title'), {
-            'fields': ('title', ('url', 'gonews',), 'external_url', ('category', 'order',), ('date_publish', 'date_unpublish',),)
+            'fields': ('title',)
+        }),
+        (_('Title'), {
+            'fields': (('url', 'gonews', 'category',), ('date_publish', 'date_unpublish',),)
         }),
         (_('Description'), {
             'classes': ('grp-collapse grp-closed',),
@@ -51,16 +54,15 @@ class FlatPageAdmin(TranslationAdmin):
         (_(u'Фотографии новости'), {'fields': (
             ('photo', 'photo2',),
         )}),
-        (None, {'fields': (
-            ('owner', 'status',),
+        (_(u'Основной текст'), {'fields': (
             'content',
-            'tags',
-            'name',
             )}),
         (_('Advanced options'), {
             'classes': ('grp-collapse grp-closed',),
             'fields': (
-                'sites',
+                ('owner', 'status',),
+                 'tags',
+                 'sites',
                 ('enable_comments', 'enable_social',),
                 'registration_required',
                 'template_name',
