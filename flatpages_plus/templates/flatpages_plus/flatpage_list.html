@@ -23,7 +23,7 @@
                     </div>
                 </div>
                 <div class="row awhide">
-                    <div class="awgudet"><a href="{{ post.url }}">Детальніше →</a></div>
+                    <div class="awgudet"><a href="{% url 'flatpage-detail' cat=curent_cat slug=post.url %}">{% trans 'Детальніше' %} →</a></div>
                 </div>
             </div>
         {% endfor %}

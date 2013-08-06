@@ -18,7 +18,8 @@ from flatpages_plus.managers import FlatpagesManager
 
 STATUS_LEVELS = (
     ('d', _('draft')),
-    ('p', _('published'))
+    ('p', _('published')),
+    ('a', _('arhive'))
 )
 
 class PublishedFlatpagesManager(models.Manager):

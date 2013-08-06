@@ -125,13 +125,13 @@ def render_flatpage(request, f):
     for i, u in enumerate(breadcrumb_urls):
         bn = ''
         bu = ''
-        try: # Try and get a flatpage instance from the URL.
+        try:  # Try and get a flatpage instance from the URL.
             # if u != '/':
             #     u = '/%s/' % u
             fp = FlatPage.objects.get(url__exact=u)
             bn = fp.name
             bu = fp.url
-        except: # Try to handle missing pages cleanly.
+        except:  # Try to handle missing pages cleanly.
             regex = re.compile(r'.*/(?P<url>[-\w\.]+)/?$')
             try:
                 # Default to the URL slug of the last segment of the URL 
@@ -146,7 +146,7 @@ def render_flatpage(request, f):
             # Return None if the flatpage doesn't exist so we don't link to it, 
             # because it would cause a 404 error if we did.
             bu = None
-        breadcrumbs += [{ # Contsruct a dictionary for the breadcrumb entity.
+        breadcrumbs += [{  # Contsruct a dictionary for the breadcrumb entity.
             'url': bu,
             'name': bn,
         }]
@@ -172,6 +172,7 @@ class FlatPagePlusList(FiberPageMixin, FlatPageMixin, ListView):
     def get_queryset(self):
         self.e_context = dict()
         cat = None
+
         qs = FlatPage.objects.filter(status='p').order_by("-date_publish")
         a = self.request.GET.get('a', None)
         c = self.request.GET.get('c', None)
@@ -185,7 +186,7 @@ class FlatPagePlusList(FiberPageMixin, FlatPageMixin, ListView):
             qs = qs.filter(category__slug=cat)
         else:
             qs = qs.filter(category__status='p')
-            qs = qs.exclude(category__in=[2])
+            # qs = qs.exclude(category__in=[2])
         if a is not None:
             qs = qs.filter(owner=a)
         elif y is not None and m is not None:
@@ -203,7 +204,8 @@ class FlatPagePlusList(FiberPageMixin, FlatPageMixin, ListView):
     #     return context
 
     def get_fiber_page_url(self):
-        return reverse('flatpage_item_list')
+        return reverse('flatpage_item_list', kwargs={"cat": self.kwargs['cat']})
+
 
 class AquariumList(FiberPageMixin, FlatPageMixin, ListView):
     template_name = "tpl-aquarium.html"
@@ -215,6 +217,7 @@ class AquariumList(FiberPageMixin, FlatPageMixin, ListView):
 
     def get_fiber_page_url(self):
         return reverse('aquarium_item_list')
+
 
 class FlatPagePlusDetail(FiberPageMixin, FlatPageMixin, DetailView):
     model = FlatPage
@@ -229,7 +232,6 @@ class FlatPagePlusDetail(FiberPageMixin, FlatPageMixin, DetailView):
     #     return super(BlogDeleteView, self).dispatch(*args, **kwargs)
     #
 
-
     def get_context_data(self, **kwargs):
         context = super(FlatPagePlusDetail, self).get_context_data(**kwargs)
         fp = context['object']
@@ -242,5 +244,5 @@ class FlatPagePlusDetail(FiberPageMixin, FlatPageMixin, DetailView):
         return context
 
     def get_fiber_page_url(self):
-        return reverse('flatpage_item_list')
+        return reverse('flatpage_item_list', kwargs={"cat": self.kwargs['cat']})
 

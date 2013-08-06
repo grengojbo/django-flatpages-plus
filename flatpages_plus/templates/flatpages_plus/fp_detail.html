@@ -1,45 +1,40 @@
-{% extends "layout_2_col_9x3.html" %}
+{% extends "tpl-default.html" %}
 {% load i18n static fiber_tags flatpages_plus_tags thumbnail cache compress admin_urls guardian_tags %}{% load url from future %}
 {% block title %}{{ fiber_page.title }} : {{ object.title }}{% endblock title %}
 {% get_current_language as lang %}
 {% block content_title %}
-    <div class="span12 awpagetitle">
-        <h1>{{ object.title }}</h1>
-    </div>{% endblock content_title %}
+    <div class="row">
+        <div class="span12">
+            <h1>
+                <span class="head">{{ object.title }}</span>
+            </h1>
+        </div>
+    </div>
+{% endblock content_title %}
 {% block content %}
-    <div class="media" data-news-detail='{{ object.pk }}'>
-        {% if object.photo2 %}
-            <a class="pull-left" href="#">
-                {% thumbnail object.photo2 "220" as im %}
-                    <img class="media-object" alt="{{ object.title }}" width="{{ im.width }}" height="{{ im.height }}"
-                         src="{{ im.url }}">{% endthumbnail %}
-            </a>
-        {% elif object.photo %}
-            {% if object.category == 2 %}
-                <a class="pull-left" href="#">
-                    {% thumbnail object.photo "670" as im %}
-                        <img class="media-object" alt="{{ object.title }}" width="{{ im.width }}"
-                             height="{{ im.height }}" src="{{ im.url }}">{% endthumbnail %}
-                </a>
-            {% else %}
-                <a class="pull-left" href="#">
-                    {% thumbnail object.photo "220" as im %}
-                        <img class="media-object" alt="{{ object.title }}" width="{{ im.width }}"
-                             height="{{ im.height }}" src="{{ im.url }}">{% endthumbnail %}
-                </a>
-            {% endif %}
-        {% endif %}
-        <div class="media-body">
-            {{ object.content|safe }}
+ <article class="span12" data-news-detail='{{ object.pk }}'>
+     {% if object.photo2 %}
+         <a class="pull-left" href="#">
+             {% thumbnail object.photo2 "220" as im %}
+                 <img alt="{{ object.title }}" width="{{ im.width }}" height="{{ im.height }}"
+                      src="{{ im.url }}">{% endthumbnail %}
+         </a>
+     {% elif object.photo %}
+         <a class="pull-left" href="#">
+             {% thumbnail object.photo "220" as im %}
+                 <img alt="{{ object.title }}" width="{{ im.width }}" height="{{ im.height }}"
+                      src="{{ im.url }}">{% endthumbnail %}
+         </a>
+     {% endif %}
+ {{ object.content|safe }}
+ </article>
+
         </div>
         <div class="clearfix"></div>
     </div>
 {% endblock content %}
 {% block content-related %}
-    <div class="row">
-        <div class="span9" data-news-id='{{ object.id }}'>
-            <p></p>
-
+        <div class="span12" data-news-id='{{ object.id }}'>
             <div class="pull-left awtuul">
                 <span>
                    <span rel="tooltip" data-original-title="{% trans 'Дата публикации' %}"><i class="icon-calendar"></i> {{ object.date_publish|date:"d M Y" }}</span>
@@ -67,57 +62,10 @@
             </div>
 
         </div>
-    </div>
-    <script type="text/javascript" charset="utf-8">
-        $(function () {
-            var modelVote = 'flatpages_plus.FlatPage';
-            var newsItems = $('div').map(function () {
-                return $(this).data('news-id');
-            }).get();
-            var voiteItems = $('.itemVoite').map(function () {
-                return $(this).data('id');
-            }).get();
-            console.log(newsItems);
-            console.log(voiteItems);
-            Dajaxice.jboviews(Dajax.process, {'items':newsItems, 'model':modelVote});
-            Dajaxice.jboVote(Dajax.process, {'items':voiteItems, 'model':modelVote});
 
-            $('.itemVoite').click(function () {
-                if ($(this).hasClass('disabled')) {
-                    return false;
-                } else {
-                    //var voiteId = $(this).data('id');
-                    //console.debug('текст внутри элемента ".itemVoite" id= %s', voiteId);
-                    Dajaxice.voites(Dajax.process, {'object_id':$(this).data('id'), 'model':$(this).data('voite')});
-                    $(this).addClass('disabled');
-                    return false;
-                }
-            });
-        });
-    </script>
-    <script type="text/javascript">
-        window.___gcfg = {lang:'uk'};
-
-        (function () {
-            var po = document.createElement('script');
-            po.type = 'text/javascript';
-            po.async = true;
-            po.src = 'https://apis.google.com/js/plusone.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(po, s);
-        })();
-    </script>
-    <script>(function (d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "//connect.facebook.net/uk_UA/all.js#xfbml=1";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));</script>
 {% endblock content-related %}
-{% block sidebar %}
-    {% include 'flatpages_plus/fp_sidebar.html' %}
+{#{% block sidebar %}#}
+{#    {% include 'flatpages_plus/fp_sidebar.html' %}#}
     {#            <li class="nav-header"><span>{% trans "Archives" %}</span></li>#}
     {#            {% for news in date_list %}#}
     {#                {% ifchanged news.date_publish.month %}#}
@@ -133,4 +81,53 @@
     {#                    </li>#}
     {#                {% endifchanged %}#}
     {#            {% endfor %}#}
-{% endblock sidebar %}
+{#{% endblock sidebar %}#}
+{#{% block extrajs %}#}
+{#  <script type="text/javascript" charset="utf-8">#}
+{#        $(function () {#}
+{#            var modelVote = 'flatpages_plus.FlatPage';#}
+{#            var newsItems = $('div').map(function () {#}
+{#                return $(this).data('news-id');#}
+{#            }).get();#}
+{#            var voiteItems = $('.itemVoite').map(function () {#}
+{#                return $(this).data('id');#}
+{#            }).get();#}
+{#            console.log(newsItems);#}
+{#            console.log(voiteItems);#}
+{#            Dajaxice.jboviews(Dajax.process, {'items':newsItems, 'model':modelVote});#}
+{#            Dajaxice.jboVote(Dajax.process, {'items':voiteItems, 'model':modelVote});#}
+{##}
+{#            $('.itemVoite').click(function () {#}
+{#                if ($(this).hasClass('disabled')) {#}
+{#                    return false;#}
+{#                } else {#}
+{#                    //var voiteId = $(this).data('id');#}
+{#                    //console.debug('текст внутри элемента ".itemVoite" id= %s', voiteId);#}
+{#                    Dajaxice.voites(Dajax.process, {'object_id':$(this).data('id'), 'model':$(this).data('voite')});#}
+{#                    $(this).addClass('disabled');#}
+{#                    return false;#}
+{#                }#}
+{#            });#}
+{#        });#}
+{#    </script>#}
+{#    <script type="text/javascript">#}
+{#        window.___gcfg = {lang:'uk'};#}
+{##}
+{#        (function () {#}
+{#            var po = document.createElement('script');#}
+{#            po.type = 'text/javascript';#}
+{#            po.async = true;#}
+{#            po.src = 'https://apis.google.com/js/plusone.js';#}
+{#            var s = document.getElementsByTagName('script')[0];#}
+{#            s.parentNode.insertBefore(po, s);#}
+{#        })();#}
+{#    </script>#}
+{#    <script>(function (d, s, id) {#}
+{#        var js, fjs = d.getElementsByTagName(s)[0];#}
+{#        if (d.getElementById(id)) return;#}
+{#        js = d.createElement(s);#}
+{#        js.id = id;#}
+{#        js.src = "//connect.facebook.net/uk_UA/all.js#xfbml=1";#}
+{#        fjs.parentNode.insertBefore(js, fjs);#}
+{#    }(document, 'script', 'facebook-jssdk'));</script>#}
+{#{% endblock extrajs %}#}
