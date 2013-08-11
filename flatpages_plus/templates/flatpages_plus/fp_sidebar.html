@@ -1,9 +1,0 @@
-{% load i18n static fiber_tags flatpages_plus_tags %}{% load url from future %}
-<div id='sidebar_detail'>
-    <ul class="nav nav-list">
-        <li class="nav-header"><span><a href="{% url 'flatpage_item_list' %}">{% trans "Новости и Акции" %}</a></span></li>
-        {% for news in category_list %}
-            <li><a href="{% url 'news-category-list' cat=news.slug %}">{{ news.name }}</a></li>
-        {% endfor %}
-    </ul>
-</div>
