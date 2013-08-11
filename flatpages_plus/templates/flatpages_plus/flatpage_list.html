@@ -29,3 +29,50 @@
         {% endfor %}
     </article>
 {% endblock content %}
+{% block sidebr %}
+<aside class="span3" id="aside-right">
+<div class="pull-left awgumagbut">{% trans 'Новини' %}</div>
+<ul class="awmaglistnav clr">
+    <li>
+        <a href="{% url 'flatpage_item_list'  cat='news' %}">{% trans 'Останні' %}</a>
+        <span class="pol"></span>
+    </li>
+    <li>
+        <a href="{% url 'flatpage_item_list'  cat='news' %}">{% trans 'Популярні' %}</a>
+        <span class="pol"></span>
+    </li>
+    <li>
+        <a href="{% url 'flatpage_item_list'  cat='promotions' %}">{% trans 'Акції' %}</a>
+        <span class="pol"></span>
+    </li>
+
+</ul>
+<div class="pull-left awgumagbut">{% trans 'Архів' %}</div>
+        <ul class="awmaglistnav clr">
+    <li>
+        <a href="{% url 'flatpage_arive_list'  cat='news' %}">2013-01-28</a>
+        <span class="pol"></span>
+    </li>
+    <li>
+        <a href="{% url 'flatpage_arive_list'  cat='news' %}">2013-02-14</a>
+        <span class="pol"></span>
+    </li>
+    <li>
+        <a href="{% url 'flatpage_arive_list'  cat='news' %}">2013-03-25</a>
+        <span class="pol"></span>
+    </li>
+    <li>
+        <a href="{% url 'flatpage_arive_list'  cat='news' %}">2013-04-04</a>
+        <span class="pol"></span>
+    </li>
+    <li>
+        <a href="{% url 'flatpage_arive_list'  cat='news' %}">2013-05-15</a>
+        <span class="pol"></span>
+    </li>
+    <li>
+        <a href="{% url 'flatpage_arive_list'  cat='news' %}">2013-06-02</a>
+        <span class="pol"></span>
+    </li>
+</ul>
+</aside>
+{% endblock sidebr %}
