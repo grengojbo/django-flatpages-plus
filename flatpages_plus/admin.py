@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from flatpages_plus.forms import FlatpageForm
 from flatpages_plus.models import FlatPage, Categories
 from modeltranslation.admin import TranslationAdmin
+from fiber.models import ContentItem
 
 
 #try:
@@ -88,5 +89,24 @@ class FlatPageAdmin(TranslationAdmin):
                 "{0}js/tinymce_setup.js".format(settings.STATIC_URL),
             ]
 
+
+class FiberContentItemAdmin(TranslationAdmin):
+    group_fieldsets = True
+    list_display = ('__unicode__',)
+    fieldsets = (
+        (None, {'fields': ('name', 'content_html',)}),
+    )
+    date_hierarchy = 'updated'
+    search_fields = ('name', 'content_html')
+
+    class Media:
+        js = [
+            "{0}grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js".format(settings.STATIC_URL),
+            "{0}js/tinymce_setup.js".format(settings.STATIC_URL),
+        ]
+        css = {'screen': '{0}grappelli_modeltranslation/css/css/tabbed_translation_fields.css'.format(settings.STATIC_URL)}
+
+
 admin.site.register(FlatPage, FlatPageAdmin)
 admin.site.register(Categories, CategoriesAdmin)
+# admin.site.register(ContentItem, FiberContentItemAdmin)

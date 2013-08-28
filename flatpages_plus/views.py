@@ -164,7 +164,7 @@ def render_flatpage(request, f):
 
 class FlatPagePlusList(FiberPageMixin, FlatPageMixin, ListView):
     # template_name = "tpl-news.html"
-    paginate_by = 20
+    paginate_by = getattr(settings, 'FLAT_PAGE_PAGINATE', 20)
     # from django.core import urlresolvers
     # c = Choice.objects.get(...)
     # change_url = urlresolvers.reverse('admin:polls_choice_change', args=(c.id,))
