@@ -3,19 +3,21 @@ import datetime
 
 from django.conf import settings
 from django.db import models
+from datetime import datetime as dt
+from django.db.models import Q, F
 
 
 class FlatpagesManager(models.Manager):
     """
     Allows flatpages to be listed and sorted by various criteria.
     """
-    
+
     # def published(self):
     #     """Get only published"""
     #     pass
-    
-    def get_flatpages(self, sort='modified', tags=None, not_tags=None, starts_with=None, 
-                    owners=None, limit=None, remove=None, category=None):
+
+    def get_flatpages(self, sort='modified', tags=None, not_tags=None, starts_with=None,
+                      owners=None, limit=None, remove=None, category=None):
         """
         The main function to return flatpages based on various criteria.
         
@@ -61,10 +63,11 @@ class FlatpagesManager(models.Manager):
         """
         # Get the initial queryset
         query_set = self.get_query_set()
-        
+
         # Filter by the current site.
-        query_set = query_set.filter(sites__id=settings.SITE_ID, status='p')
-        
+        query_set = query_set.filter((Q(date_unpublish__gte=dt.now()) | Q(date_unpublish__isnull=True)),
+                                     sites__id=settings.SITE_ID, status='p')
+
         # Get all the filtering sort types.
         sort_types = {
             'modified': query_set.order_by('modified'),
@@ -79,25 +82,25 @@ class FlatpagesManager(models.Manager):
             'order': query_set.order_by('order'),
             '-order': query_set.order_by('-order')
         }
-        
+
         query_set = sort_types.get(sort, query_set)
-            
+
         if tags is not None:
             tag_list = str(tags).split(',')
             query_set = query_set.filter(tags__name__in=tag_list).distinct()
-        
+
         if not_tags is not None:
             not_tags_list = str(not_tags).split(',')
             query_set = query_set.exclude(tags__name__in=not_tags_list)
-        
+
         if starts_with is not None:
             starts_with = str(starts_with)
             query_set = query_set.filter(url__startswith=starts_with)
-        
+
         if owners is not None:
             owners_list = str(owners).split(',')
             query_set = query_set.filter(owner__pk__in=owners_list)
-            
+
         if remove is not None:
             remove_list = str(remove).split(',')
             #query_set = query_set.exclude(pk__in=remove_list)
@@ -110,60 +113,56 @@ class FlatpagesManager(models.Manager):
         # Limit the length of the result.
         if limit is not None:
             query_set = query_set[:int(limit)]
-            
+
         return query_set.cache()
-        
-        
-        
-        
+
+
+
+
         # Try to get the type of sorting the user wants. Default to most
         # recently modified.
         # try:
         #     query_set = sort_types.get(sort, query_set)
         # except Exception, e:
         #     raise e
-        
-        
-        
-        
-        
-    
+
+
     def most_recently_modified(self, limit=None):
         """
         Get the most recently modified flatpages.
         """
         return self.get_flatpages(self, 'modified', limit=limit)
-    
+
     def least_recently_modified(self, limit=None):
         """
         Get the least recently modified flatpages.
         """
         return self.get_flatpages(self, '-modified', limit=limit)
-    
+
     def most_recently_created(self, limit=None):
         """
         Get the most recently created flatpages.
         """
         return self.get_flatpages(self, 'created', limit=limit)
-    
+
     def least_recently_created(self, limit=None):
         """
         Get the least recently created flatpages.
         """
         return self.get_flatpages(self, '-created', limit=limit)
-    
+
     def most_viewed(self, limit=None):
         """
         Get most viewed flatpages.
         """
         return self.get_flatpages(self, 'views', limit=limit)
-    
+
     def least_viewed(self, limit=None):
         """
         Get least viewed flatpages.
         """
         return self.get_flatpages(self, '-views', limit=limit)
-    
+
     def random(self, limit=None):
         """
         Get random flatpages.

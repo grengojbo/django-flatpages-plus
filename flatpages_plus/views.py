@@ -12,7 +12,8 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.generic import ListView, DetailView
 from fiber.views import FiberPageMixin
 from .mixins import FlatPageMixin
-
+from datetime import datetime as dt
+from django.db.models import Q
 from flatpages_plus.models import FlatPage
 
 DEFAULT_TEMPLATE = 'flatpages_plus/default.html'
@@ -173,7 +174,8 @@ class FlatPagePlusList(FiberPageMixin, FlatPageMixin, ListView):
         self.e_context = dict()
         cat = None
 
-        qs = FlatPage.objects.filter(status='p').order_by("-date_publish")
+        qs = FlatPage.objects.filter((Q(date_unpublish__gte=dt.now()) | Q(date_unpublish__isnull=True)),
+                                     status='p').order_by("-date_publish")
         a = self.request.GET.get('a', None)
         c = self.request.GET.get('c', None)
         y = self.request.GET.get('y', None)
