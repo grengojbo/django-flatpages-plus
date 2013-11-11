@@ -155,6 +155,11 @@ def get_slider(album=1, limits=25, sort='asc'):
     """
     {% get_slider album=1 limits=3  as sliders %}
     {% for image in sliders %}
+         {% thumbnail image.image "160x120" crop="center" as im %}
+            <a class="thumbnail" rel='gallery-image[ilist]' href="{{ image.get_absolute_url }}">
+                <img class="preview" {% if image.title %} alt="{{ image.title }}" {% endif %} src="{{ im.url }}">
+            </a>
+        {% endthumbnail %}
         в 12:<sup><small>{{ image.id }}</small></sup>, <a href="/news/">22.03.12 →</a>
     {% endfor %}
     :param album: ID Album
