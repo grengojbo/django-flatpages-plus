@@ -26,6 +26,8 @@ DEFAULT_TEMPLATE = 'flatpages_plus/default.html'
 # or a redirect is required for authentication, the 404 needs to be returned
 # without any CSRF checks. Therefore, we only
 # CSRF protect the internal implementation.
+
+
 def flatpage(request, url, **kwargs):
     """
     Public interface to the flat page view.
@@ -43,6 +45,7 @@ def flatpage(request, url, **kwargs):
     #     url = "/" + url
     f = get_object_or_404(FlatPage, url__exact=url, status='p',  sites__id__exact=settings.SITE_ID)
     return render_flatpage(request, f)
+
 
 @csrf_protect
 def render_flatpage(request, f):
@@ -91,8 +94,6 @@ def render_flatpage(request, f):
     #         'url': bu,
     #         'title': bt,
     #     }]
-    
-    
 
     breadcrumb_urls = []
     breadcrumbs = []
@@ -101,9 +102,9 @@ def render_flatpage(request, f):
         """Trim the last section off a URL."""
         regex = re.compile(r'(?P<url>.*/)[-\w\.]+/?$')
         try:
-            trimmed_url = regex.match(url).group('url') # Return the parent page
+            trimmed_url = regex.match(url).group('url')  # Return the parent page
         except:
-            trimmed_url = None # Return None to indicate no parent.
+            trimmed_url = None  # Return None to indicate no parent.
         return trimmed_url
 
     def do_trimming(url):
@@ -151,7 +152,6 @@ def render_flatpage(request, f):
             'url': bu,
             'name': bn,
         }]
-    
     
     c = RequestContext(request, {
         'flatpage': f,
