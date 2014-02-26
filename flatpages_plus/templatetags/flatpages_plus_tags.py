@@ -150,6 +150,7 @@ class FlatpagesNode(template.Node):
 # def render(self, context):
 #         return ''
 
+
 @register.assignment_tag()
 def get_slider(album=1, limits=25, sort='asc'):
     """
@@ -168,6 +169,7 @@ def get_slider(album=1, limits=25, sort='asc'):
     """
     sliders = Image.objects.filter(album__id=album).order_by('order').order_by('updated')[:int(limits)]
     return sliders
+
 
 @register.tag
 def get_flatpages(parser, token):

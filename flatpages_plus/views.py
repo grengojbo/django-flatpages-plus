@@ -17,6 +17,7 @@ from django.db.models import Q
 from flatpages_plus.models import FlatPage
 from django.http import HttpResponse
 import json
+from django.core import serializers
 
 DEFAULT_TEMPLATE = 'flatpages_plus/default.html'
 
@@ -264,5 +265,16 @@ def ret_gallery(request):
 class SliderJsonView(View):
 
     def get(self, *args, **kwargs):
-        resp = {'image': '/static/img/slider/bn1.png', 'title': 'Сайт находится в стадии разработки!', 'text': 'Сайт находится в стадии разработки!'}, {'image': '/static/img/slider/bn1.png',  'title': 'Сайт находится в стадии разработки!', 'text': 'Сайт находится в стадии разработки!'}
-        return HttpResponse(json.dumps(resp), mimetype="application/json" )
+        resp = []
+        rstatus = 404
+        p = FlatPage.objects.filter(category__id__exact=int(kwargs['cat']), status__exact='p')
+        for r in p:
+            rstatus = 200
+            if r.description is not None:
+                resp.append(dict(image=r.photo.url, title=r.title, text=r.description))
+            else:
+                resp.append(dict(image=r.photo.url, onlyimg='yes'))
+        # resp = [{'image': 'static/img/slider/bn1.png', 'title': 'Сайт находится в стадии разработки!', 'text': 'Сайт находится в стадии разработки!'}, {'image': '/static/img/slider/bn1.png',  'title': 'Сайт находится в стадии разработки!', 'text': 'Сайт находится в стадии разработки!'}, {'image': '/static/img/slider/bn1.png',  'title': 'Сайт находится в стадии разработки!', 'text': 'Сайт находится в стадии разработки!'}]
+        if rstatus == 404:
+            resp = {'error': 'Not Found :('}
+        return HttpResponse(json.dumps(resp), mimetype="application/json", status=rstatus)
