@@ -9,12 +9,14 @@ from django.shortcuts import get_object_or_404
 from django.template import loader, RequestContext
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_protect
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, View
 from fiber.views import FiberPageMixin
 from .mixins import FlatPageMixin
 from datetime import datetime as dt
 from django.db.models import Q
 from flatpages_plus.models import FlatPage
+from django.http import HttpResponse
+import json
 
 DEFAULT_TEMPLATE = 'flatpages_plus/default.html'
 
@@ -26,6 +28,11 @@ DEFAULT_TEMPLATE = 'flatpages_plus/default.html'
 # or a redirect is required for authentication, the 404 needs to be returned
 # without any CSRF checks. Therefore, we only
 # CSRF protect the internal implementation.
+
+
+class JsonResponse(HttpResponse):
+    def __init__(self, content={}, mimetype=None, status=None, content_type='application/json'):
+        super(JsonResponse, self).__init__(json.dumps(content), mimetype=mimetype,  status=status, content_type=content_type)
 
 
 def flatpage(request, url, **kwargs):
@@ -248,3 +255,14 @@ class FlatPagePlusDetail(FiberPageMixin, FlatPageMixin, DetailView):
     def get_fiber_page_url(self):
         return reverse('flatpage_item_list', kwargs={"cat": self.kwargs['cat']})
 
+
+def ret_gallery(request):
+    resp_data = {'my_key': 'my value'}
+    return JsonResponse(resp_data)
+
+
+class SliderJsonView(View):
+
+    def get(self, *args, **kwargs):
+        resp = {'image': '/static/img/slider/bn1.png', 'title': 'Сайт находится в стадии разработки!', 'text': 'Сайт находится в стадии разработки!'}, {'image': '/static/img/slider/bn1.png',  'title': 'Сайт находится в стадии разработки!', 'text': 'Сайт находится в стадии разработки!'}
+        return HttpResponse(json.dumps(resp), mimetype="application/json" )
