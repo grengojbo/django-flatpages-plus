@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 # from flatpages_plus.forms import FlatpageForm
 from flatpages_plus.models import FlatPage, Categories
 #from fiber.models import ContentItem
+from fiber.editor import get_editor_field_name
 try:
     from modeltranslation.admin import TranslationAdmin, TranslationStackedInline
 
@@ -59,7 +60,7 @@ class FlatPageAdmin(ModelAdmin):
             ('photo', 'photo2',),
         )}),
         (_(u'Основной текст'), {'fields': (
-            'content',
+            get_editor_field_name('content'),
         )}),
         (_('Advanced options'), {
             'classes': ('grp-collapse grp-closed',),
@@ -87,28 +88,34 @@ class FlatPageAdmin(ModelAdmin):
     #inlines = [NewsPhotoInline, NewsVideoInline, NewsDocumentInline]
 
     class Media:
-        js = [
-            "{0}grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js".format(settings.STATIC_URL),
-            "{0}js/tinymce_setup.js".format(settings.STATIC_URL),
-        ]
+        js = (
+            'modeltranslation/js/force_jquery.js',
+            'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/jquery-ui.min.js',
+            'modeltranslation/js/tabbed_translation_fields.js',
+        )
+        css = {
+            'screen': ('modeltranslation/css/tabbed_translation_fields.css',),
+        }
 
 
 class FiberContentItemAdmin(ModelAdmin):
     group_fieldsets = True
     list_display = ('__unicode__',)
     fieldsets = (
-        (None, {'fields': ('name', 'content_html',)}),
+        (None, {'fields': ('name', get_editor_field_name('content_html'))}),
     )
     date_hierarchy = 'updated'
     search_fields = ('name', 'content_html')
 
     class Media:
-        js = [
-            "{0}grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js".format(settings.STATIC_URL),
-            "{0}js/tinymce_setup.js".format(settings.STATIC_URL),
-        ]
+        js = (
+            'modeltranslation/js/force_jquery.js',
+            'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/jquery-ui.min.js',
+            'modeltranslation/js/tabbed_translation_fields.js',
+        )
         css = {
-            'screen': '{0}grappelli_modeltranslation/css/css/tabbed_translation_fields.css'.format(settings.STATIC_URL)}
+            'screen': ('modeltranslation/css/tabbed_translation_fields.css',),
+        }
 
 
 admin.site.register(FlatPage, FlatPageAdmin)

@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from fiber.app_settings import IMAGES_DIR
 from sorl.thumbnail import ImageField, get_thumbnail
 from sorl.thumbnail.helpers import ThumbnailError
+from fiber.utils.fields import FiberHTMLField
 #from trc.models import AreaPartners
 import datetime
 
@@ -56,7 +57,8 @@ class FlatPage(models.Model):
                             help_text=_(
                                 u'The name of the page is used in creating links to pages and the breadcrumbs.'))
     category = models.ForeignKey(Categories, verbose_name=_(u'Categories'), blank=True, null=True)
-    content = models.TextField(_('content'), blank=True)
+    # content = models.TextField(_('content'), blank=True)
+    content = FiberHTMLField(_('content'), blank=True)
     owner = models.ForeignKey(User, verbose_name=_('owner'), default=1,
                               help_text=_(u'The user that is responsible for this page.'))
     views = models.IntegerField(_('views'), default=0, blank=True, null=True,
