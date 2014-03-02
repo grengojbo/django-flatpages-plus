@@ -10,6 +10,7 @@ from django.template import loader, RequestContext
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import ListView, DetailView, View
+from rest_framework.views import APIView
 from fiber.views import FiberPageMixin
 from .mixins import FlatPageMixin
 from datetime import datetime as dt
@@ -17,7 +18,11 @@ from django.db.models import Q
 from flatpages_plus.models import FlatPage
 from django.http import HttpResponse
 import json
-from django.core import serializers
+# from django.core import serializers
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import PageSerializer, FPageSerializer
 
 DEFAULT_TEMPLATE = 'flatpages_plus/default.html'
 
@@ -278,3 +283,86 @@ class SliderJsonView(View):
         if rstatus == 404:
             resp = {'error': 'Not Found :('}
         return HttpResponse(json.dumps(resp), mimetype="application/json", status=rstatus)
+
+
+class FPageList(APIView):
+    """
+    List all snippets, or create a new snippet.
+    """
+    def get(self, request, format=None):
+        snippets = FlatPage.objects.all()
+        serializer = PageSerializer(snippets, many=True)
+        return Response(serializer.data)
+
+    # def post(self, request, format=None):
+    #     serializer = SnippetSerializer(data=request.DATA)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PageList(generics.ListAPIView):
+    """
+    http://127.0.0.1:8000/api/v1/page/list/3/?photo=normal
+    """
+    model = FlatPage
+    # serializer_class = PageSerializer
+
+    def get_queryset(self):
+        queryset = super(PageList, self).get_queryset()
+        user = self.request.user
+        # qlimit = self.request.QUERY_PARAMS.get('limit', None)
+        # return queryset.filter(is_public=True).select_related('head')
+        # if username is not None:
+        #     queryset = queryset.filter(purchaser__username=username)
+        if self.kwargs['cat']:
+            queryset = queryset.filter(category__id__exact=int(self.kwargs['cat']))
+        return queryset.filter(status__exact='p')
+
+    def get_serializer_class(self):
+        # return PageSerializer(FlatPage, fields=('id', 'title'), context={'addcontext': 'yes'})
+        # if self.request.user.is_staff:
+        #     return FullAccountSerializer
+        return PageSerializer
+
+    def get_paginate_by(self):
+        """
+        Use smaller pagination for HTML representations.
+        """
+        return self.request.QUERY_PARAMS.get('limit', 50)
+        # if self.request.accepted_renderer.format == 'html':
+        #     return 20
+        # return 1
+
+
+class PageDetail(APIView):
+
+    def get_object(self, pk):
+        try:
+            return FlatPage.objects.get(pk=pk, status__exact='p')
+        except FlatPage.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        snippet = self.get_object(pk)
+        serializer = FPageSerializer(snippet, context={'request': request})
+        return Response(serializer.data)
+    #
+    # def put(self, request, pk, format=None):
+    #     snippet = self.get_object(pk)
+    #     serializer = SnippetSerializer(snippet, data=request.DATA)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #
+    # def delete(self, request, pk, format=None):
+    #     snippet = self.get_object(pk)
+    #     snippet.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# class PageDetail(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Snippet.objects.all()
+#     serializer_class = SnippetSerializer
