@@ -6,14 +6,9 @@ from django.utils.translation import ugettext_lazy as _
 from flatpages_plus.models import FlatPage, Categories
 #from fiber.models import ContentItem
 from fiber.editor import get_editor_field_name
-try:
-    from modeltranslation.admin import TranslationAdmin, TranslationStackedInline
 
-    ModelAdmin = TranslationAdmin
-    StackedInlineAdmin = TranslationStackedInline
-except:
-    ModelAdmin = admin.ModelAdmin
-    StackedInlineAdmin = admin.StackedInline
+ModelAdmin = admin.ModelAdmin
+StackedInlineAdmin = admin.StackedInline
 
 #try:
 #    from grappellifit.admin import TranslationAdmin, TranslationStackedInline
@@ -36,12 +31,12 @@ class CategoriesAdmin(ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ('name',)
 
-    class Media:
-        js = [
-            "{0}grappelli_modeltranslation/js/tabbed_translation_fields.js".format(settings.STATIC_URL),
-        ]
-        css = {
-            'screen': '{0}grappelli_modeltranslation/css/css/tabbed_translation_fields.css'.format(settings.STATIC_URL)}
+    # class Media:
+    #     js = [
+    #         "{0}grappelli_modeltranslation/js/tabbed_translation_fields.js".format(settings.STATIC_URL),
+    #     ]
+    #     css = {
+    #         'screen': '{0}grappelli_modeltranslation/css/css/tabbed_translation_fields.css'.format(settings.STATIC_URL)}
 
 
 class FlatPageAdmin(ModelAdmin):
@@ -87,15 +82,15 @@ class FlatPageAdmin(ModelAdmin):
     date_hierarchy = 'date_publish'
     #inlines = [NewsPhotoInline, NewsVideoInline, NewsDocumentInline]
 
-    class Media:
-        js = (
-            'modeltranslation/js/force_jquery.js',
-            'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/jquery-ui.min.js',
-            'modeltranslation/js/tabbed_translation_fields.js',
-        )
-        css = {
-            'screen': ('modeltranslation/css/tabbed_translation_fields.css',),
-        }
+    # class Media:
+    #     js = (
+    #         'modeltranslation/js/force_jquery.js',
+    #         'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/jquery-ui.min.js',
+    #         'modeltranslation/js/tabbed_translation_fields.js',
+    #     )
+    #     css = {
+    #         'screen': ('modeltranslation/css/tabbed_translation_fields.css',),
+    #     }
 
 
 class FiberContentItemAdmin(ModelAdmin):
@@ -107,15 +102,15 @@ class FiberContentItemAdmin(ModelAdmin):
     date_hierarchy = 'updated'
     search_fields = ('name', 'content_html')
 
-    class Media:
-        js = (
-            'modeltranslation/js/force_jquery.js',
-            'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/jquery-ui.min.js',
-            'modeltranslation/js/tabbed_translation_fields.js',
-        )
-        css = {
-            'screen': ('modeltranslation/css/tabbed_translation_fields.css',),
-        }
+    # class Media:
+    #     js = (
+    #         'modeltranslation/js/force_jquery.js',
+    #         'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/jquery-ui.min.js',
+    #         'modeltranslation/js/tabbed_translation_fields.js',
+    #     )
+    #     css = {
+    #         'screen': ('modeltranslation/css/tabbed_translation_fields.css',),
+    #     }
 
 
 admin.site.register(FlatPage, FlatPageAdmin)
